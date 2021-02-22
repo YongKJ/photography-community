@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.web.graduation.dao.MessageDao">
+
+    <select id="checkComment" resultType="com.web.graduation.entities.Comment">
+        select works.id, ment.content from tbl_works works
+        join tbl_workcomment ment
+        on works.id = ment.work_id
+        where works.user_id = #{user_id}
+    </select>
+
+    <select id="worksComment" resultType="com.web.graduation.entities.Comment">
+        select users.username, users.image, ment.date_time, ment.content
+        from tbl_works works
+        join tbl_workcomment ment
+        on works.id = ment.work_id
+        join tbl_user users
+        on ment.user_id = users.id
+        where works.user_id = #{user_id}
+        order by ment.id desc
+        limit 1
+    </select>
+
+    <select id="commentInfo" resultType="com.web.graduation.entities.Comment">
+        select works.id as artid,works.works_title as username, images.image as photo, users.id as userid, users.image, ment.content, ment.date_time
+        from tbl_works works
+        join (select distinct * from tbl_image group by works_id) images
+        on works.id = images.works_id
+        join tbl_workcomment ment
+        on works.id = ment.work_id
+        join tbl_user users
+        on ment.user_id = users.id
+        where works.user_id = #{user_id}
+        order by ment.id desc
+    </select>
+
+    <select id="checkArtComment" resultType="com.web.graduation.entities.Comment">
+        select article.id, ment.content from tbl_article article
+        join tbl_comment ment
+        on article.id = ment.artid
+        where article.users_id = #{user_id}
+    </select>
+
+    <select id="artComment" resultType="com.web.graduation.entities.Comment">
+        select users.username, users.image, ment.date_time, ment.content
+        from tbl_article article
+        join tbl_comment ment
+        on article.id = ment.artid
+        join tbl_user users
+        on ment.userid = users.id
+        where article.users_id = #{user_id}
+        order by ment.id desc
+        limit 1
+    </select>
+
+    <select id="artCommentInfo" resultType="com.web.graduation.entities.Comment">
+        select article.id as artid, article.title as username, article.image as photo, users.id as userid, users.image, ment.content, ment.date_time
+        from tbl_article article
+        join tbl_comment ment
+        on article.id = ment.artid
+        join tbl_user users
+        on ment.userid = users.id
+        where article.users_id = #{users_id}
+        order by ment.id desc
+    </select>
+
+    <select id="worksCollection" resultType="com.web.graduation.entities.Works">
+        select users.id as user_id, users.username, users.image as photo, works.works_title, works.id, coll.date_time, coll.flag
+        from tbl_workcoll coll
+        join tbl_user users
+        on coll.userid = users.id
+        join tbl_works works
+        on coll.workid = works.id
+        where coll.userid = #{user_id}
+        order by coll.id desc
+    </select>
+
+    <select id="articleCollection" resultType="com.web.graduation.entities.Works">
+        select users.id as user_id, users.username, users.image as photo, article.title as works_title, article.id, coll.date_time, coll.flag
+        from tbl_artcoll coll
+        join tbl_user users
+        on coll.userid = users.id
+        join tbl_article article
+        on coll.artid = article.id
+        where coll.userid = #{user_id}
+        order by coll.id desc
+    </select>
+</mapper>

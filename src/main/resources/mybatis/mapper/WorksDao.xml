@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.web.graduation.dao.WorksDao">
+    <insert id="addWorks">
+        insert into tbl_works(works_title, classify, works_describe, tag, date_time, glance, praise, user_id)
+        value (#{works_title}, #{classify}, #{works_describe}, #{tag}, #{date_time}, #{glance}, #{praise}, #{user_id})
+    </insert>
+    <select id="selectId" resultType="com.web.graduation.entities.Works">
+        select id from tbl_works where user_id = #{user_id} order by id desc limit 1
+    </select>
+
+    <delete id="deleteWorks">
+        delete from tbl_works where id = #{works_id} and user_id = #{userId}
+    </delete>
+
+    <update id="addGlance">
+        update tbl_works set glance = glance + 1 where id = #{works_id}
+    </update>
+
+    <resultMap id="works" type="com.web.graduation.entities.Works">
+        <id property="id" column="id"/>
+        <result property="works_title" column="works_title"/>
+        <result property="classify" column="classify"/>
+        <result property="works_describe" column="works_describe"/>
+        <result property="tag" column="tag"/>
+        <result property="date_time" column="date_time"/>
+        <result property="glance" column="glance"/>
+        <result property="praise" column="praise"/>
+        <result property="user_id" column="user_id"/>
+        <result property="username" column="username"/>
+        <result property="photo" column="photo"/>
+        <collection property="imageList" ofType="com.web.graduation.entities.Image">
+            <id property="id" column="image_id"/>
+            <result property="image" column="image"/>
+            <result property="works_id" column="works_id"/>
+        </collection>
+    </resultMap>
+    <select id="selectWorks" resultMap="works">
+        select works.*,users.username,users.image as photo,images.id as image_id,images.image,images.works_id
+               from tbl_works works
+               join tbl_user users
+               on works.user_id = users.id
+               left outer join tbl_image images
+               on works.id = images.works_id
+               where works.id = #{works.id}
+    </select>
+
+    <select id="worksList" resultMap="works">
+        select works.*,images.id as image_id,images.image,images.works_id
+               from tbl_works works
+               left outer join (select distinct * from tbl_image group by works_id) images
+               on works.id = images.works_id
+                <trim prefix="where" suffixOverrides="and || or">
+                    <if test="user_id!=null">
+                        works.user_id = #{user_id} and
+                    </if>
+                    <if test="info!=null &amp;&amp;info!=&quot;&quot;">
+                        (works.works_title like concat('%',#{info},'%')
+                            or works.classify like concat('%',#{info},'%')
+                            or works.tag like concat('%',#{info},'%')
+                        )
+                    </if>
+                </trim>
+               order by works.id desc
+    </select>
+
+    <select id="worksCollList" resultMap="works">
+        select works.*,images.id as image_id,images.image,images.works_id
+        from tbl_works works
+        join tbl_workcoll coll
+        on works.id = coll.workid
+        left outer join (select distinct * from tbl_image group by works_id) images
+        on works.id = images.works_id
+        where coll.userid = #{user_id}
+        order by works.id desc
+    </select>
+
+    <insert id="isCollect">
+        insert tbl_workcoll(userid, workid, date_time, flag) value (#{user_id}, #{work_id}, #{date_time}, 1)
+    </insert>
+    <delete id="delCollect">
+        delete from tbl_workcoll where userid = #{user_id} and workid = #{work_id}
+    </delete>
+
+    <select id="workCollList" resultType="com.web.graduation.entities.ArtCollection">
+        select userid as user_id, workid as art_id from tbl_workcoll where userid = #{user_id} and workid = #{work_id}
+    </select>
+
+    <select id="galleryWorks" resultMap="works">
+        select works.*,users.username,users.image as photo,images.id as image_id,images.image,images.works_id
+               from tbl_works works
+               join tbl_user users
+               on works.user_id = users.id
+               left outer join (select distinct * from tbl_image group by works_id) images
+               on works.id = images.works_id
+                <trim prefix="where" suffixOverrides="and || or">
+                    <if test="info!=null &amp;&amp;info!=&quot;&quot;">
+                        (works.works_title like concat('%',#{info},'%')
+                        or works.classify like concat('%',#{info},'%')
+                        or works.tag like concat('%',#{info},'%')
+                        )
+                    </if>
+                </trim>
+    </select>
+
+    <select id="indexWorks" resultMap="works">
+        select works.id, works.glance, works.praise, users.id as user_id, users.username, users.image as photo, images.image
+        from tbl_works works
+        left outer join (select distinct * from tbl_image group by works_id) images
+        on works.id = images.works_id
+        join tbl_user users
+        on works.user_id = users.id
+        where works.id between 51 and 62
+    </select>
+</mapper>

@@ -1,0 +1,49 @@
+spring:
+  redis:
+    host: 47.100.90.204
+    port: 6379
+    password:
+    database: 0
+    lettuce:
+      pool:
+        max-active: 32
+        max-wait: 300ms
+        max-idle: 16
+        min-idle: 8
+  thymeleaf:
+    cache: false
+  datasource:
+    username: username
+    password: password
+    url: jdbc:mysql://47.100.90.204:3306/graduation?characterEncoding=UTF-8&serverTimezone=UTC
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    initialization-mode: always
+  resources:
+    static-locations: classpath:/static/,classpath:/templates/,classpath:/resources/,classpath:/public/
+  #邮件发送配置
+  mail:
+    default-encoding: UTF-8
+    host: smtp.qq.com
+    port: 465
+    username: 1257080478@qq.com
+    password: hxvbbjuesnmwjibh
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 100MB
+mybatis:
+  config-location: classpath:mybatis/mybatis-config.xml
+  mapper-locations: classpath:mybatis/mapper/*.xml
+server:
+  port: 8088
+  servlet:
+    session:
+      timeout: 300
+pagehelper:
+  helper-dialect: mysql

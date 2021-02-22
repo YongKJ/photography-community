@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.web.graduation.dao.ArticleDao">
+
+    <insert id="addArticle">
+        insert into tbl_article(image,title,tag,content,date_time,glance,coll,users_id) value(#{image},#{title},
+        #{tag},#{content},#{date_time},#{glance},#{coll},#{users_id})
+    </insert>
+    <select id="articleList" resultType="com.web.graduation.entities.Article">
+        select id, image, title, glance, coll, users_id from tbl_article
+        <trim prefix="where" suffixOverrides="and || or">
+            <if test="user_id!=null">
+                users_id = #{user_id} and
+            </if>
+            <if test="info!=null &amp;&amp;info!=&quot;&quot;">
+                title like concat('%',#{info},'%')
+            </if>
+        </trim>
+        order by id desc
+    </select>
+
+    <update id="addGlance">
+        update tbl_article set glance = glance + 1 where id = #{article_id}
+    </update>
+    <update id="addColl">
+        update tbl_article set coll = coll + 1 where id = #{article_id}
+    </update>
+    <update id="reduceColl">
+        update tbl_article set coll = coll - 1 where id = #{article_id}
+    </update>
+    <select id="selectArticle" resultType="com.web.graduation.entities.Article">
+        select article.* ,users.username from tbl_article article join
+        tbl_user users on  article.users_id = users.id
+        where article.id = #{article_id}
+    </select>
+
+    <select id="allArticles" resultType="com.web.graduation.entities.Article">
+        select id, image, title, content, glance, coll from tbl_article order by id desc
+    </select>
+
+    <select id="hotArticles" resultType="com.web.graduation.entities.Article">
+        select id, title from tbl_article order by glance desc limit 5
+    </select>
+
+    <select id="searchArticles" resultType="com.web.graduation.entities.Article">
+        select id, image, title, content, glance, coll from tbl_article
+        where title like concat('%',#{info},'%') or content like concat('%',#{info},'%') or tag like concat('%',#{info},'%')
+    </select>
+
+    <insert id="isCollect">
+        insert tbl_artcoll(userid, artid, date_time, flag) value (#{user_id}, #{art_id}, #{date_time}, 0)
+    </insert>
+    <delete id="delCollect">
+        delete from tbl_artcoll where userid = #{user_id} and artid = #{art_id}
+    </delete>
+    <delete id="delArticle">
+        delete from tbl_article where users_id = #{user_id} and id = #{art_id}
+    </delete>
+    <select id="artCollList" resultType="com.web.graduation.entities.ArtCollection">
+        select userid as user_id, artid as art_id from tbl_artcoll where userid = #{user_id} and artid = #{art_id}
+    </select>
+
+    <select id="userCollList" resultType="com.web.graduation.entities.Article">
+        select article.id, article.image, article.title, article.content, article.glance, article.coll from tbl_artcoll coll
+        join tbl_article article
+        on  coll.artid = article.id
+        where coll.userid = #{user_id}
+    </select>
+</mapper>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.web.graduation.dao.CommentDao">
+
+    <insert id="addComment">
+        insert into tbl_comment(content, date_time, userid, artid) value (#{content}, #{date_time}, #{userid}, #{artid})
+    </insert>
+
+    <insert id="addResponse">
+        insert into tbl_response(response, res_time, user1_id, user2_id, comment_id) value (#{response}, #{res_time}, #{user1_id}, #{user2_id}, #{comment_id})
+    </insert>
+
+    <resultMap id="responses" type="com.web.graduation.entities.Comment">
+        <id property="id" column="id"/>
+        <result property="content" column="content"/>
+        <result property="date_time" column="date_time"/>
+        <result property="userid" column="userid"/>
+        <result property="artid" column="artid"/>
+        <result property="username" column="username"/>
+        <result property="image" column="image"/>
+        <collection property="responseList" ofType="com.web.graduation.entities.Response">
+            <id property="id" column="resId"/>
+            <result property="response" column="response"/>
+            <result property="res_time" column="res_time"/>
+            <result property="user1" column="user1"/>
+            <result property="user2" column="user2"/>
+            <result property="user1_id" column="user1_id"/>
+            <result property="user2_id" column="user2_id"/>
+            <result property="comment_id" column="comment_id"/>
+            <result property="artid" column="artid"/>
+        </collection>
+    </resultMap>
+
+    <select id="commentList" resultMap="responses">
+        select ment.*, users.username,users.image, res.id as resId, res.response,res.res_time,res.user1,res.user2,res.user1_id,res.user2_id,res.comment_id
+        from tbl_comment ment
+        join tbl_user users
+        on ment.userid = users.id
+        left join (select resa.id, resa.response, resa.res_time, resa.user1_id, resa.user2_id,usera.username as user1, userb.username as user2,resa.comment_id from tbl_response resa
+              join tbl_user usera
+              on resa.user1_id = usera.id
+              join tbl_user userb
+              on resa.user2_id = userb.id
+              ) res
+        on ment.id = res.comment_id
+        where ment.artid = #{art_id}
+        order by ment.id desc
+    </select>
+
+    <insert id="addWorkComment">
+        insert into tbl_workcomment(content, date_time, user_id, work_id) value (#{content}, #{date_time}, #{userid}, #{artid})
+    </insert>
+
+    <select id="workComment" resultType="com.web.graduation.entities.Comment">
+        select ment.id, ment.content, ment.date_time, ment.user_id as userid, ment.work_id as artid, users.username, users.image
+        from tbl_workcomment ment
+        join tbl_user users
+        on ment.user_id = users.id
+        where ment.work_id = #{work_id}
+        order by ment.id desc
+    </select>
+</mapper>

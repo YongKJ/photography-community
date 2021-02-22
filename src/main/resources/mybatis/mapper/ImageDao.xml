@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.web.graduation.dao.ImageDao">
+    <insert id="addImage">
+        insert into tbl_image(image,works_id) value (#{image},#{works_id})
+    </insert>
+
+    <delete id="delUserImage">
+        delete from tbl_image where works_id = #{works_id}
+    </delete>
+
+    <select id="worksImages" resultType="com.web.graduation.entities.Image">
+        select image from tbl_image where works_id = #{works_id}
+    </select>
+</mapper>

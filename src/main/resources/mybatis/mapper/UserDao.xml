@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.web.graduation.dao.UserDao">
+    <insert id="addUser">
+        insert into tbl_user(username,password,birthday,sex,telephone,email,qq,image,persignature,perdescription)
+        value (#{username},#{password},#{birthday},#{sex},#{telephone},#{email},#{qq},#{image},#{persignature},#{perdescription})
+    </insert>
+
+    <select id="checkUserExit" resultType="com.web.graduation.entities.User">
+        select email from tbl_user where email = #{email}
+    </select>
+    <select id="userLogin" resultType="com.web.graduation.entities.User">
+        select * from tbl_user where email = #{email};
+    </select>
+
+    <select id="userImage" resultType="com.web.graduation.entities.User">
+        select id,username,image from tbl_user where id = #{user_id}
+    </select>
+
+    <select id="userInfo" resultType="com.web.graduation.entities.User">
+        select id,username,birthday,sex,telephone,email,qq,image,persignature,perdescription from tbl_user where id = #{user_id}
+    </select>
+
+    <select id="userNewInfo" resultType="com.web.graduation.entities.User">
+        select id,username,birthday,sex,telephone,email,qq,image,persignature,perdescription from tbl_user where id = #{id}
+    </select>
+
+
+    <update id="updateUser">
+        update tbl_user
+        <trim prefix="set" suffixOverrides=",">
+            <if test="username != null">
+                username = #{username},
+            </if>
+            <if test="birthday != null">
+                birthday = #{birthday},
+            </if>
+            <if test="sex != null">
+                sex = #{sex},
+            </if>
+            <if test="telephone != null">
+                telephone = #{telephone},
+            </if>
+            <if test="email != null">
+                email = #{email},
+            </if>
+            <if test="qq != null">
+                qq = #{qq},
+            </if>
+            <if test="persignature != null">
+                persignature = #{persignature},
+            </if>
+            <if test="perdescription != null">
+                perdescription = #{perdescription}
+            </if>
+        </trim>
+             where id = #{id}
+    </update>
+
+    <update id="updateImage">
+        update tbl_user set image = #{image} where id = #{id}
+    </update>
+
+    <update id="updatePwd">
+        update tbl_user set password = #{password} where email = #{email}
+    </update>
+
+    <resultMap id="userInfo" type="com.web.graduation.entities.User">
+        <id property="id" column="id"/>
+        <result property="username" column="username"/>
+        <collection property="worksList" ofType="com.web.graduation.entities.Works">
+            <id property="id" column="workId"/>
+            <result property="works_title" column="works_title"/>
+            <result property="classify" column="classify"/>
+            <result property="works_describe" column="works_describe"/>
+            <result property="tag" column="tag"/>
+            <result property="date_time" column="date_time"/>
+            <result property="glance" column="glance"/>
+            <result property="praise" column="praise"/>
+            <result property="user_id" column="user_id"/>
+            <collection property="imageList" ofType="com.web.graduation.entities.Image">
+                <id property="id" column="imageId"/>
+                <result property="image" column="image"/>
+                <result property="works_id" column="works_id"/>
+            </collection>
+        </collection>
+    </resultMap>
+
+    <select id="selectUser" resultMap="userInfo">
+        select users.id,users.username,works.id as workId,works.works_title,works.classify,works.works_describe,
+               works.tag,works.date_time,works.glance,works.praise,works.user_id,
+               images.id as imageId,images.image,images.works_id
+               from tbl_user users
+               left outer join tbl_works works
+               on users.id = works.user_id
+               left outer join tbl_image images
+               on works.id = images.works_id
+               where users.id = #{user_id}
+    </select>
+</mapper>
